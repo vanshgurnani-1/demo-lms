@@ -14,7 +14,7 @@ router.get('/getStudent',async (req,res)=>{
         res.json(student);
     }
     catch(error){
-        console.error('Error fetching notes by category:', error);
+        console.error('Error fetching:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 })
@@ -26,7 +26,7 @@ router.get('/getRole/:role',async (req,res)=>{
         res.json(student);
     }
     catch(error){
-        console.error('Error fetching notes by category:', error);
+        console.error('Error fetching:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 })
