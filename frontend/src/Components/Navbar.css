@@ -1,0 +1,28 @@
+#navbar_container {
+    width: 100vw;
+    height: 8vh;
+    display: flex;
+    align-items: center;
+    /* background:linear-gradient(to left, #f4ddf9 0.5%,#9656A1 80%); */
+    /* background-color: #9656A1; */
+    padding: 0 5%;
+    box-sizing: border-box;
+}
+
+#navbar_container h2 {
+    color: black;
+}
+
+#navbar_container button {
+    margin-left: auto;
+    background-color: white;
+    width: 100px;
+    padding: 0.5%;
+    border: none;
+    border-radius: 4px;
+    box-shadow: 0px 0px 3px 1px lightgray;
+}
+
+#navbar_container button:hover {
+    cursor: pointer;
+}

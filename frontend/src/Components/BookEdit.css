@@ -1,0 +1,52 @@
+.db{
+  padding: 2%;
+  box-sizing: border-box;
+}
+.db .numbers{
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  width: 100%;
+  gap: 20px;
+}
+.numbers .card{
+  padding: 1% 2%;
+  flex: 1 1 0px;
+  font-size: 12px;
+  border-radius: 4px;
+  border-bottom: 5px solid #9656A1;
+  box-shadow: 0px 0px 7px 2px #f4ddf9;
+}
+.numbers .card .number{
+  font-size: 30px;
+  text-align: right;
+}
+.charts{
+  margin: 2% 0%;
+  padding: 1% 2%;
+  flex: 1 1 0px;
+  font-size: 12px;
+  border-radius: 4px;
+  border-bottom: 5px solid #9656A1;
+  box-shadow: 0px 0px 7px 2px #f4ddf9;
+}
+.charts .chart{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.charts .label{
+  display: flex;
+  font-size: 12px;
+  gap: 20px;
+}
+.label .flex{
+  gap: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.label .flex .color{
+  width: 15px;
+  height: 15px;
+}

@@ -1,0 +1,276 @@
+#sidebar {
+  width: 17%;
+  /* background-color:    rgb(245, 245, 245); */
+  background-color: #0D028D;
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  box-shadow: 1.5px 0px 5px 1px lightgrey;
+  gap: 20px;
+  padding: 2% 2% 2% 0;
+}
+
+.adding_button
+{
+  background: black;
+}
+.adding_button:hover
+{
+  background-color: black;
+}
+#main_container {
+  width: 80vw;
+  height: 92vh;
+  display: inline-flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+#page_title {
+  display: inline-block;
+}
+
+#students_table_container {
+  width: 95%;
+  height: 70vh;
+  margin-left: 2.5%;
+  border: 1px solid black;
+  overflow-y: scroll;
+  padding-top: 1vh;
+}
+
+#students_table {
+  border-collapse: collapse;
+}
+
+#students_table th,
+td {
+  width: 10%;
+  height: 5vh;
+  text-align: center;
+}
+
+#students_container {
+  overflow-y: scroll;
+}
+
+#display {
+  display: block;
+}
+
+#no_display {
+  display: none;
+}
+
+#form {
+  min-height: 70vh;
+  width: 50%;
+  /* border: 1px solid black; */
+  margin-left: 25%;
+  border-radius: 5px;
+  padding: 2%;
+}
+
+#form input,
+#form select {
+  width: 85%;
+  height: 6vh;
+  margin-left: 5%;
+  padding-left: 3%;
+  margin-top: 1vh;
+}
+
+#form select {
+  width: 88%;
+}
+
+#form label {
+  margin-top: 5%;
+  margin-left: 5%;
+  font-weight: bold;
+}
+
+#submit {
+  width: 30% !important;
+  height: 6vh;
+  text-align: center;
+  background-color: rgb(0, 140, 255);
+  border: 0;
+  outline: 0;
+  color: white;
+  margin-left: 35%;
+  margin-top: 8%;
+  font-size: 1.2vw;
+}
+
+.inputs {
+  display: flex;
+  align-items: flex-end;
+  width: 100%;
+  gap: 20px;
+  margin-bottom: 2vh;
+  margin-right: 2vh;
+}
+
+.sort {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+#sidebar #sidebar_option {
+  width: 100%;
+  padding: 7% 5%;
+  /* background-color: rgb(255, 255, 255); */
+  /* background: #f8f6f8; */
+  color: white;
+  text-align: center;
+  display: inline-block;
+  position: relative;
+  border-radius: 0 250px 250px 0;
+
+
+  box-sizing: border-box;
+}
+
+#sidebar #sidebar_option:hover {
+  background: white;
+
+  color: black;
+  cursor: pointer;
+
+  transition: 0.25s all ease;
+}
+
+
+#sidebar_option::after {
+  display: block;
+  content: '';
+  border-bottom: solid 3px #9656A1;
+  transform: scaleX(0);
+  /* transition: transform 250ms ease-in-out; */
+  width: 100%;
+}
+
+#sidebar_option:hover::after {
+  transform-origin: scaleX(1);
+}
+
+
+
+.display_add {
+  height: inherit
+}
+
+.add_type {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+.add_type .add_button {
+  width: 20%;
+}
+
+.add_type .add_button button {
+  padding: 6% 4%;
+  width: 100%;
+  border-radius: 4px;
+  border: 0.5px solid lightgrey;
+  background-color: rgb(243, 243, 243);
+}
+
+
+.add_type .add_button button:hover {
+  cursor: pointer;
+  background-color:#9656A1;
+  color: white;
+}
+
+input {
+  border: none;
+  background-color: white;
+  border-radius: 4px;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  font-size: 12px;
+  border-bottom: 2px solid black;
+}
+
+form {
+  font-size: 12px;
+}
+
+#student_error {
+  color: red;
+  font-style: italic;
+}
+
+#submit {
+  background-color: #9656A1
+}
+
+#submit:hover {
+  cursor: pointer;
+}
+
+.filter_button {
+  color: white;
+  background-color: #9656A1;
+  border: none;
+  border-radius: 4px;
+  font-size: 15px;
+  padding: 1% 2%;
+  white-space: nowrap;
+}
+
+.filter_button:first-child {
+  margin-left: auto;
+}
+
+.filter_button:hover {
+  cursor: pointer;
+}
+
+.filter_input input::-webkit-calendar-picker-indicator {
+  background: transparent;
+  bottom: 0;
+  color: transparent;
+  cursor: pointer;
+  height: auto;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 100%;
+}
+
+.filter-para {
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.display_add_book {
+  display: block;
+}
+
+.bulk_button {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+#login_display {
+  height: 100%;
+}
+
+#sidebar_option_login {
+  font-size: 30px;
+  font-weight: 700;
+}
