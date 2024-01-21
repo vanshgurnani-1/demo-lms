@@ -20,4 +20,27 @@ router.get('/getAllot', async (req,res)=>{
     }
 })
 
+router.post('/postAllotBook', async (req, res) => {
+    try {
+
+      const { studentId, studentName, bookName, bookId, borrowedDate, expectedReturnDate } = req.body;
+  
+      const newAllotment = new Allot({
+        studentId,
+        studentName,
+        bookName,
+        bookId,
+        borrowedDate,
+        expectedReturnDate,
+      });
+  
+      await newAllotment.save();
+  
+      res.status(201).json({ message: 'Book allotted successfully', allotment: newAllotment });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
 module.exports = router;
