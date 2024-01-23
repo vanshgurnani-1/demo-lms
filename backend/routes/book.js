@@ -100,6 +100,19 @@ router.post('/postBook', async (req, res) => {
     }
   });
 
+  router.get('/getBookByName/:name',async (req,res)=>{
+    try{
+        const Name = req.params.name;
+        const book = await Book.findOne({ name: Name });
+        res.json(book);
+    }
+    catch(error){
+        console.error('Error fetching:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+})
+
+ 
   
   router.get('/getBook/:reg_no',async (req,res)=>{
     try{

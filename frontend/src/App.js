@@ -103,6 +103,8 @@ function App() {
     student_batch: "",
     student_id_db: "",
   });
+
+
   const [allotDetails, setAllotDetails] = useState({
     studentId: "",  // Match the key names with the data structure
     studentName: "",
@@ -111,7 +113,7 @@ function App() {
     bookName: "",
     borrowedDate: 0,
     expectedReturnDate: 0,
-    return_status: false,
+    return_status: true,
 });
 
 
@@ -150,7 +152,6 @@ function App() {
               [e.target.name]: e.target.value,
             }));
           } else {
-            setAddStudentError("Id is not taken");
             setStudentDetails((prev) => ({
               ...prev,
               [e.target.name]: e.target.value,
@@ -166,7 +167,6 @@ function App() {
             [e.target.name]: e.target.value,
           }));
         } else {
-          setAddStudentError("Id is not taken");
           setStudentDetails((prev) => ({
             ...prev,
             [e.target.name]: e.target.value,
@@ -195,33 +195,6 @@ function App() {
 
   // allot form onchange
 
-  const handleAllotChange = (e) => {
-    if (e?.target?.name === "student_id") {
-      const temp = allotList.filter(
-        (student) => student.student_id === e.target.value
-      );
-      if (temp[0]) {
-        setAllotStudentName(temp[0].student_name);
-        setAllotDetails((prev) => ({
-          ...prev,
-          student_name: temp[0].student_name,
-        }));
-      } else if (e.target.value === "") {
-        setAllotStudentName("");
-      } else {
-        setAllotStudentName("No student with Id " + e.target.value);
-      }
-    } else if (e.target.name === "book_id") {
-      const temp2 = allotBooksList.filter(
-        (book) => book.book_id === e.target.value
-      );
-      setAllotDetails((prev) => ({ ...prev, book_name: temp2[0].book_name , book_reg : temp2[0].book_reg }));
-    }
-    
-  
-    setAllotDetails((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  };
-  
   
   function bookExistsance(event) {
     ifBookExists = books.find((book) => book.book_name == event.target.value);
@@ -416,6 +389,7 @@ function App() {
             // Make an Axios PUT request to your server endpoint for updating a student
             const response = await axios.put(`http://localhost:5000/student/updateStudent/${studentId}`, {
                 // Assuming editStudentDetails is an object with updated student details
+                id:editStudentDetails.student_id,
                 name: editStudentDetails.student_name,
                 phone: editStudentDetails.student_phone,
                 batch: editStudentDetails.student_batch,
@@ -674,12 +648,12 @@ const handleEditBook = async (reg_no) => {
         header: 'Actions',
         Cell: ({ row }) => (
           <div>
+          <button  onClick={() =>handleEditBook(row.original.reg_no)}>
+            Edit
+          </button>
+          <br />
             <button onClick={() => deleteBook(row.original.reg_no)}>
               Delete
-            </button>
-            <br />
-            <button  onClick={() =>handleEditBook(row.original.reg_no)}>
-              Edit
             </button>
           </div>
         ),
@@ -741,22 +715,9 @@ const handleEditBook = async (reg_no) => {
 
 
 
-  const handleChangeReturnStatus = async (studentId) => {
-    try {
-      await axios.put(`http://localhost:5000/allot/updateAllotByBookId/${studentId}`, {
-        return_status: allotDetails.return_status,
-      });
-  
-      getHistory();
-      setTab("history");
-    } catch (error) {
-      console.error('Error updating return status:', error);
-    }
-  };
-  
   const handleAllotSubmit = async (e) => {
     e.preventDefault();
-  
+    
     // Assuming you have a similar state for allotment details
     if (
       allotDetails.studentId !== "" &&
@@ -765,43 +726,119 @@ const handleEditBook = async (reg_no) => {
       allotDetails.bookId !== "" &&
       allotDetails.borrowedDate !== "" &&
       allotDetails.expectedReturnDate !== ""
-    ) {
-      try {
-        // Make a POST request to your Express server
-        const response = await axios.post('http://localhost:5000/allot/postAllotBook', {
-          studentId: allotDetails.studentId,
-          studentName: allotDetails.studentName,
-          bookName: allotDetails.bookName,
-          bookId: allotDetails.bookId,
-          borrowedDate: allotDetails.borrowedDate,
-          expectedReturnDate: allotDetails.expectedReturnDate,
-          return_status: allotDetails.return_status,
-        });
+      ) {
+        try {
+          // Make a POST request to your Express server
+          const response = await axios.post('http://localhost:5000/allot/postAllotBook', {
+            studentId: allotDetails.studentId,
+            studentName: allotDetails.studentName,
+            bookName: allotDetails.bookName,
+            bookId: allotDetails.bookId,
+            borrowedDate: allotDetails.borrowedDate,
+            expectedReturnDate: allotDetails.expectedReturnDate,
+            return_status: allotDetails.return_status,
+          });
+          
+          console.log('MongoDB API Response:', response.data);
   
-        console.log('MongoDB API Response:', response.data);
-  
-        getHistory(); // Assuming this function fetches the latest allotment history
-        alert('Allot done with sucess');
-        setTab("history");
-        setAllotDetails({
-          studentId: "",
-          studentName: "",
-          bookName: "",
-          bookId: "",
-          borrowedDate: "",
-          expectedReturnDate: "",
-        });
-      } catch (err) {
-        console.error('Error adding allotment:', err);
-        alert("Cannot add allotment");
+          getHistory(); // Assuming this function fetches the latest allotment history
+          alert('Allot done with sucess');
+          setTab("history");
+          setAllotDetails({
+            studentId: "",
+            studentName: "",
+            bookName: "",
+            bookId: "",
+            borrowedDate: "",
+            expectedReturnDate: "",
+          });
+        } catch (err) {
+          console.error('Error adding allotment:', err);
+          alert("Cannot add allotment");
+        }
+      } else {
+        alert("Please fill in all form values");
       }
-    } else {
-      alert("Please fill in all form values");
-    }
-  };
-  
+    };
+    
 
-  
+    const handleStudentIdChange = async (enteredStudentId) => {
+      setAllotDetails({ ...allotDetails, studentId: enteredStudentId });
+    
+      if (enteredStudentId) {
+        try {
+          // Make an API call to fetch student details based on the ID
+          const response = await axios.get(`http://localhost:5000/student/getId/${enteredStudentId}`);
+          const student = response.data;
+    
+          // Update the state with the fetched student name
+          setAllotDetails((prevDetails) => ({
+            ...prevDetails,
+            studentName: student ? student.name : "", // Set to an empty string if student not found
+          }));
+        } catch (error) {
+          console.error('Error fetching student details:', error);
+        }
+      } else {
+        // Clear the studentName if the entered ID is empty
+        setAllotDetails((prevDetails) => ({ ...prevDetails, studentName: "" }));
+      }
+    };
+
+
+    const handleBookNameChange = async (enteredBookName) => {
+      setAllotDetails({ ...allotDetails, bookName: enteredBookName });
+    
+      if (enteredBookName) {
+        try {
+          // Make an API call to fetch book details based on the name
+          const response = await axios.get(`http://localhost:5000/book/getBookByName/${enteredBookName}`);
+          const book = response.data;
+    
+          // Update the state with the fetched book ID
+          setAllotDetails((prevDetails) => ({
+            ...prevDetails,
+            bookId: book ? book.reg_no : "", // Set to null if book not found
+          }));
+        } catch (error) {
+          console.error('Error fetching book details:', error);
+        }
+      } else {
+        // Clear the bookId if the entered name is empty
+        setAllotDetails((prevDetails) => ({ ...prevDetails, bookId: null }));
+      }
+    };
+
+
+
+    const handleChangeReturnStatus = async (studentId) => {
+      try {
+        // Assuming selectedStatus is a boolean value
+        const selectedStatus = allotDetails.return_status === "true"; // Convert to boolean
+        
+        await axios.put(`http://localhost:5000/allot/updateAllotByBookId/${studentId}`, {
+          return_status: selectedStatus,
+        });
+    
+        // Update the state with the modified return_status
+        setAllotDetails((prevDetails) => ({
+          ...prevDetails,
+          return_status: selectedStatus,
+        }));
+    
+        // Fetch the updated history after the return_status is updated
+        getHistory();
+    
+        // Trigger a re-render by setting the tab
+        setTab("history");
+        
+        alert("Update done");
+      } catch (error) {
+        console.error('Error updating return status:', error);
+      }
+    };
+    
+    
 
 
 
@@ -1427,7 +1464,7 @@ const historyColumns = useMemo(
                   value={studentDetails.student_id}
                   onChange={handleStudentChange}
                 />
-                <p
+                {/*<p
                   style={{
                     marginLeft: "5%",
                     marginBottom: "0",
@@ -1436,7 +1473,7 @@ const historyColumns = useMemo(
                   id="student_error"
                 >
                   {addStudentError}
-                </p>
+                </p>*/}
               </div>
               <div style={{ marginTop: "5%" }}>
                 <label for="name">Student Name</label>
@@ -1558,9 +1595,7 @@ const historyColumns = useMemo(
                   name="studentId"
                   placeholder="Student ID"
                   value={allotDetails.studentId}
-                  onChange={(e) => {
-                    setAllotDetails({ ...allotDetails, studentId: e.target.value });
-                  }}
+                  onChange={(e) => handleStudentIdChange(e.target.value)}
                 />
               </div>
               <div style={{ marginTop: "5%" }}>
@@ -1570,24 +1605,20 @@ const historyColumns = useMemo(
                   name="studentName"
                   placeholder="Student Name"
                   value={allotDetails.studentName}
-                  onChange={(e) => {
-                    setAllotDetails({ ...allotDetails, studentName: e.target.value });
-                  }}
+                  readOnly
                 />
               </div>
               <div style={{ marginTop: "5%" }}>
                 <label for="name">Book Name</label>
-                {/*<CategorySearch allotBooksList={allotBooksList} handleAllotChange={handleAllotChange}  />*/}
+                <CategorySearch allotBooksList={allotBooksList} handleAllotChange={handleBookNameChange}  />
 
-                <input
+                {/*<input
                   type="text"
                   name="bookName"
                   placeholder="Book Name"
                   value={allotDetails.bookName}
-                  onChange={(e) => {
-                    setAllotDetails({ ...allotDetails, bookName: e.target.value });
-                  }}
-                />
+                  onChange={(e) => handleBookNameChange(e.target.value)}
+              />*/}
 
               </div>
 
@@ -1598,9 +1629,7 @@ const historyColumns = useMemo(
                   name="bookId"
                   placeholder="Book register id"
                   value={allotDetails.bookId}
-                  onChange={(e) => {
-                    setAllotDetails({ ...allotDetails, bookId: e.target.value });
-                  }}
+                  readOnly
                 />
               </div>
               <div style={{ marginTop: "5%" }}>
