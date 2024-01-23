@@ -113,7 +113,7 @@ function App() {
     bookName: "",
     borrowedDate: 0,
     expectedReturnDate: 0,
-    return_status: true,
+    return_status: false,
 });
 
 
@@ -813,17 +813,19 @@ const handleEditBook = async (reg_no) => {
 
     const handleChangeReturnStatus = async (studentId) => {
       try {
-        // Assuming selectedStatus is a boolean value
-        const selectedStatus = allotDetails.return_status === "true"; // Convert to boolean
-        
-        await axios.put(`http://localhost:5000/allot/updateAllotByBookId/${studentId}`, {
-          return_status: selectedStatus,
+        // Assuming selectedStatus is a boolean value // Convert to boolean
+        const newStatus = !allotDetails.return_status; // Toggle the status
+    
+        alert(studentId);
+    
+        await axios.put(`http://localhost:5000/allot/updateAllot/${studentId}`, {
+          return_status: newStatus,
         });
     
         // Update the state with the modified return_status
         setAllotDetails((prevDetails) => ({
           ...prevDetails,
-          return_status: selectedStatus,
+          return_status: newStatus,
         }));
     
         // Fetch the updated history after the return_status is updated
@@ -831,12 +833,13 @@ const handleEditBook = async (reg_no) => {
     
         // Trigger a re-render by setting the tab
         setTab("history");
-        
+    
         alert("Update done");
       } catch (error) {
         console.error('Error updating return status:', error);
       }
     };
+    
     
     
 

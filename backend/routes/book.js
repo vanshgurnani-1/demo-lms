@@ -19,6 +19,7 @@ router.get('/',async (req,res)=>{
 router.get('/getBook',async (req,res)=>{
     try{
         const book = await Book.find({});
+    
         res.json(book);
     }
     catch(error){
@@ -39,6 +40,7 @@ router.post('/postBook', async (req, res) => {
         reg_no,
         price,
         quantity,
+        available: quantity
       });
   
       
