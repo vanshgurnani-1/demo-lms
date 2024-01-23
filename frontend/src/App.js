@@ -775,11 +775,13 @@ const handleEditBook = async (reg_no) => {
           bookId: allotDetails.bookId,
           borrowedDate: allotDetails.borrowedDate,
           expectedReturnDate: allotDetails.expectedReturnDate,
+          return_status: allotDetails.return_status,
         });
   
         console.log('MongoDB API Response:', response.data);
   
         getHistory(); // Assuming this function fetches the latest allotment history
+        alert('Allot done with sucess');
         setTab("history");
         setAllotDetails({
           studentId: "",
@@ -1552,64 +1554,81 @@ const historyColumns = useMemo(
               <div style={{ marginTop: "5%" }}>
                 <label for="name">Student ID</label>
                 <input
-                  type="text"
-                  name="student_id"
+                  type="number"
+                  name="studentId"
                   placeholder="Student ID"
                   value={allotDetails.studentId}
-                  onChange={handleAllotChange}
+                  onChange={(e) => {
+                    setAllotDetails({ ...allotDetails, studentId: e.target.value });
+                  }}
                 />
               </div>
               <div style={{ marginTop: "5%" }}>
                 <label for="name">Student Name</label>
                 <input
                   type="text"
-                  name="student_name"
+                  name="studentName"
                   placeholder="Student Name"
                   value={allotDetails.studentName}
-                  onChange={handleAllotChange}
-                  readOnly
+                  onChange={(e) => {
+                    setAllotDetails({ ...allotDetails, studentName: e.target.value });
+                  }}
                 />
               </div>
               <div style={{ marginTop: "5%" }}>
                 <label for="name">Book Name</label>
-                <CategorySearch allotBooksList={allotBooksList} handleAllotChange={handleAllotChange}  />
+                {/*<CategorySearch allotBooksList={allotBooksList} handleAllotChange={handleAllotChange}  />*/}
+
+                <input
+                  type="text"
+                  name="bookName"
+                  placeholder="Book Name"
+                  value={allotDetails.bookName}
+                  onChange={(e) => {
+                    setAllotDetails({ ...allotDetails, bookName: e.target.value });
+                  }}
+                />
 
               </div>
 
               <div style={{ marginTop: "5%" }}>
                 <label for="name">Book id</label>
                 <input
-                  type="text"
-                  name="student_name"
+                  type="number"
+                  name="bookId"
                   placeholder="Book register id"
                   value={allotDetails.bookId}
-                  onChange={handleAllotChange}
-                  readOnly
+                  onChange={(e) => {
+                    setAllotDetails({ ...allotDetails, bookId: e.target.value });
+                  }}
                 />
               </div>
               <div style={{ marginTop: "5%" }}>
                 <label for="name">Borrowed Date</label>
                 <input
                   type="date"
-                  name="borrowed_date"
+                  name="borrowedDate"
                   placeholder="Borrowed Date"
                   value={allotDetails.borrowedDate}
-                  onChange={handleAllotChange}
+                  onChange={(e) => {
+                    setAllotDetails({ ...allotDetails, borrowedDate: e.target.value });
+                  }}
                 />
               </div>
               <div style={{ marginTop: "5%" }}>
                 <label for="name">Expected Return Date</label>
                 <input
                   type="date"
-                  name="expected_return_date"
+                  name="expectedReturnDate"
                   placeholder="Return Date"
                   value={allotDetails.expectedReturnDate}
-                  onChange={handleAllotChange}
+                  onChange={(e) => {
+                    setAllotDetails({ ...allotDetails, expectedReturnDate: e.target.value });
+                  }}
                 />
               </div>
               <button
                 id="submit"
-                disabled={allotDetails.student_name == ""}
                 onClick={handleAllotSubmit}
               >
                 Submit

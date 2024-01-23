@@ -35,7 +35,7 @@ router.get('/getAllot/:studentId', async (req,res)=>{
 router.post('/postAllotBook', async (req, res) => {
     try {
 
-      const { studentId, studentName, bookName, bookId, borrowedDate, expectedReturnDate } = req.body;
+      const { studentId, studentName, bookName, bookId, borrowedDate, expectedReturnDate,return_status } = req.body;
   
       const newAllotment = new Allot({
         studentId,
@@ -44,6 +44,7 @@ router.post('/postAllotBook', async (req, res) => {
         bookId,
         borrowedDate,
         expectedReturnDate,
+        return_status
       });
   
       await newAllotment.save();

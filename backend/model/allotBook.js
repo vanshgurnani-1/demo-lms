@@ -28,7 +28,6 @@ const allotBookSchema = new Schema({
   },
   return_status: {
     type: Boolean, // Assuming return_status is a boolean (true for Returned, false for Pending)
-    required: true,
     default: false, // You can set a default value if needed
   },
 });
