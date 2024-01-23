@@ -10,6 +10,15 @@ const allotRoutes = require('../backend/routes/allotBook');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+const cors = require('cors');
+
+
+app.use(cors({
+  origin: 'http://localhost:3000', // Specify the allowed origin
+  methods: ['GET', 'DELETE','PUT'], // Specify the allowed HTTP methods as an array
+  // You can include other options as needed
+}));
+
 app.use(express.json());
 
 

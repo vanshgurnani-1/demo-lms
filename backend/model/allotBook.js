@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 const allotBookSchema = new Schema({
   studentId: {
-    type: String,
+    type: Number,
     required: true,
   },
   studentName: {
@@ -15,7 +15,7 @@ const allotBookSchema = new Schema({
     required: true,
   },
   bookId: {
-    type: String,
+    type: Number,
     required: true,
   },
   borrowedDate: {
@@ -25,6 +25,11 @@ const allotBookSchema = new Schema({
   expectedReturnDate: {
     type: Date,
     required: true,
+  },
+  return_status: {
+    type: Boolean, // Assuming return_status is a boolean (true for Returned, false for Pending)
+    required: true,
+    default: false, // You can set a default value if needed
   },
 });
 

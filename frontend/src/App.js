@@ -82,16 +82,19 @@ function App() {
     student_id_db: "",
   });
   const [bookDetails, setBookDetails] = useState({
+    book_id: "",
+    book_id_db: "",
     book_name: "",
     book_price: 0,
     book_quantity: 0,
-    book_reg : 0
+    book_reg : ""
   });
   const [editBookDetails, setEditBookDetails] = useState({
-    book_id: "",
     book_name: "",
+    book_reg : "",
     book_price: 0,
     book_quantity: 0,
+    book_id_db: "",
   });
   const [editStudentDetails, setEditStudentDetails] = useState({
     student_id: "",
@@ -101,15 +104,21 @@ function App() {
     student_id_db: "",
   });
   const [allotDetails, setAllotDetails] = useState({
-    student_id: "",
-    student_name: "",
-    book_id: null,
-    book_reg : null ,
-    book_name: "",
-    borrowed_date: 0,
-    expected_return_date: 0,
+    studentId: "",  // Match the key names with the data structure
+    studentName: "",
+    bookId: null,
+    bookReg: null,
+    bookName: "",
+    borrowedDate: 0,
+    expectedReturnDate: 0,
     return_status: false,
-  });
+});
+
+
+  
+
+
+// student form onchange
 
   const handleStudentChange = (e) => {
     if (!studentDetails.student_phone.match(/^(\+\d{1,2}\s)?[6-9]\d{9}$/)) {
@@ -171,6 +180,9 @@ function App() {
       }));
     }
   };
+
+// book form onchange
+
   const handleBookChange = (e) => {
     let a = e.target.value[e.target.value.length - 1];
     // if (isNaN(a)) {
@@ -180,6 +192,9 @@ function App() {
     }));
     // }
   };
+
+  // allot form onchange
+
   const handleAllotChange = (e) => {
     if (e?.target?.name === "student_id") {
       const temp = allotList.filter(
@@ -206,143 +221,29 @@ function App() {
   
     setAllotDetails((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
-  const handleReturnChange = (e) => {};
-
-  const handleStudentSubmit = async (e) => {
-    e.preventDefault();
-
-    if (
-      studentDetails.student_id !== "" &&
-      studentDetails.student_name !== "" &&
-      studentDetails.student_phone !== "" &&
-      studentDetails.student_batch !== ""
-    ) {
-      if (!studentDetails.student_phone.match(/^(\+\d{1,2}\s)?[6-9]\d{9}$/)) {
-        mobileNumberInvalid = false;
-        alert("Enter valid number")
-      } else {
-        try {
-          console.log("studentDetails before ---->", studentDetails);
-          const studentSubmit = await addDoc(collection(db, "student_list"), {
-            student: studentDetails,
-          });
-          console.log("studentDetails after ---->", studentDetails);
-          getStudents();
-          setTab("students");
-          setStudentDetails({
-            student_id: "",
-            student_name: "",
-            student_phone: "",
-            student_batch: "",
-            student_id_db: "",
-          });
-
-          // debugger;
-        } catch (err) {
-          alert("Cannot add student");
-        }
-      }
-    } else {
-      alert("Please fill all form values");
-    }
-  };
+  
+  
   function bookExistsance(event) {
     ifBookExists = books.find((book) => book.book_name == event.target.value);
     if (ifBookExists) {
       alert("book exists");
     }
-  }
-  const handleBookSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      if (books.length > 1) {
-        let ifBookExists = books.find(
-          (o) => o.book_name == bookDetails.book_name
-        );
-        if (!ifBookExists) {
-          const bookSubmit = await addDoc(collection(db, "book_list"), {
-            book: bookDetails,
-          });
-          if (bookSubmit.id != null) {
-            setBookDetails({
-              book_name: "",
-              book_price: 0,
-              book_quantity: 0,
-            });
-          }
-        } else {
-          alert("Book Exists");
-        }
-      } else {
-        const bookSubmit = await addDoc(collection(db, "book_list"), {
-          book: bookDetails,
-        });
-        if (bookSubmit.id != null) {
-          setBookDetails({
-            book_name: "",
-            book_price: 0,
-            book_quantity: 0,
-          });
-        }
-      }
-      getBooks();
-      setTab("books");
-    } catch (err) {
-      alert("Cannot add Book");
-    }
-  };
-  const handleAllotSubmit = async (e) => {
-    e.preventDefault();
-    allotDetails.borrowed_date = new Date(allotDetails.borrowed_date).getTime();
-    allotDetails.expected_return_date = new Date(
-      allotDetails.expected_return_date
-    ).getTime();
-    try {
-      const allocatSubmit = await addDoc(collection(db, "allot_list"), {
-        allot: allotDetails,
-      });
-      if (allocatSubmit.id != null) {
-        alert("Book alloted");
-        setAllotDetails({
-          student_id: "",
-          student_name: "",
-          book_id: null,
-          book_name: "",
-          borrowed_date: "",
-          expected_return_date: "",
-        });
-        setAllotStudentName("");
-        getHistory();
-        setTab("history");
-      }
-    } catch (err) {
-      alert("Cannot allocate book");
-    }
-  };
-  const handleReturnSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await axios.post(
-        "https://lms-backend-eight.vercel.app/return_book",
-        returnedBooks
-      );
-      if (res.data) {
-        getHistory();
-      }
-    } catch (err) {}
-  };
+  } 
 
+  // student table 
   const studentTable = () => {
     return students;
   };
   const studentObjects = studentTable();
 
+  // book table 
   const BooksTable = () => {
     console.log("books count " , books)
     return books;
   };
   const bookObjects = BooksTable();
 
+  // allot table
   const AllotTable = () => {
     if (searchAllotId === "") {
       // console.log(history);
@@ -355,6 +256,8 @@ function App() {
   };
   const allotObjects = AllotTable();
 
+
+
   const lendingHistory = () => {
     console.log("history array :"  ,history)
     return history;
@@ -362,14 +265,6 @@ function App() {
 
   var historyObjects = lendingHistory();
 
-  function dateString(dateObj) {
-    let month = dateObj.getUTCMonth() + 1; //months from 1-12
-    let day = dateObj.getUTCDate();
-    let year = dateObj.getUTCFullYear();
-
-    let newdate = day + "/" + month + "/" + year;
-    return newdate;
-  }
 
   const filterSearchId = (e) => {
     setSearchAllotId(e.target.value);
@@ -386,157 +281,10 @@ function App() {
     }
   };
 
-  const getStudents = async (e) => {
-    await getDocs(collection(db, "student_list")).then((querySnapshot) => {
-      const newData = querySnapshot.docs.map((doc) => ({
-        ...doc.data(),
-        id: doc.id,
-      }));
-      let student = [];
-      for (let x of newData) {
-        let obj = x["student"];
-        obj["student_id_db"] = x.id;
-        student.push(obj);
-      }
-      setStudents(student);
-    });
-  };
-  const addBook = async (e) => {
-    console.log("before add book ");
-    await getDocs(collection(db, "book_list")).then((querySnapshot) => {
-      const newData = querySnapshot.docs.map((doc) => ({
-        ...doc.data(),
-        id: doc.id,
-      }));
-      let books = [];
-      for (let x of newData) {
-        books.push(x["book"]);
-      }
-      setBooks(books);
-    });
+  
 
-    console.log("after add books");
-  };
-  const getBooks = async (e) => {
-    getHistory();
-    let obj_arr = [];
-    for (let x of history) {
-      let obj = { book: "", number: 0 };
-      if (obj_arr.length > 0) {
-        if (obj_arr.find((o) => o.book === x.book_name)) {
-          let index = obj_arr.findIndex((o) => o.book === x.book_name);
-          if (!x.return_status) {
-            obj_arr[index].number = obj_arr[index].number - 1;
-          }
-        } else {
-          obj.book = x.book_name;
-          if (!x.return_status) {
-            obj.number = -1;
-          }
-          obj_arr.push(obj);
-        }
-      } else {
-        obj.book = x.book_name;
-        if (x.return_status) {
-          obj.number = 1;
-        } else {
-          obj.number = -1;
-        }
-        obj_arr.push(obj);
-      }
-    }
-    await getDocs(collection(db, "book_list")).then((querySnapshot) => {
-      const newData = querySnapshot.docs.map((doc) => ({
-        ...doc.data(),
-        id: doc.id,
-      }));
-      let books = [];
-      for (let x of newData) {
-        let obj = {};
-        obj = x["book"];
-        obj["book_id"] = x.id;
-        books.push(obj);
-      }
-     try {
-      if (obj_arr.length > 0) {
-        for (let x of obj_arr) {
-          let bookIndex = books.findIndex((o) => o.book_name == x.book);
-          if (bookIndex > -1) {
-            books[bookIndex]["available"] =
-              Number(books[bookIndex].book_quantity) + Number(x.number);
-            if (
-              books[bookIndex]["available"] >=
-              Number(books[bookIndex].book_quantity)
-            ) {
-              books[bookIndex]["available"] = Number(
-                books[bookIndex].book_quantity
-              );
-            }
-          } else {
-            bookIndex &&(  books[bookIndex]["available"] = books[bookIndex]?.book_quantity);
-          }
-        }
-        for (let book of books) {
-          if (book["available"] == undefined) {
-            book["available"] = book.book_quantity;
-          }
-        }
-      }
-     } catch (error) {
-        console.log(error)
-     }
-      setBooks(books);
-    });
-  };
-  const getHistory = async (queryDate = false) => {
-    const collectionRef = collection(db, "allot_list");
-    let start = null;
-    let end = null;
-    if (queryDate) {
-      if (startDate) {
-        start = new Date(startDate).getTime();
-      } else {
-        start = new Date(0).getTime();
-      }
-      if (endDate) {
-        end = new Date(endDate).getTime();
-      } else {
-        end = Date.now() + 31536000000;
-      }
-    } else {
-      start = new Date(0).getTime();
-      end = Date.now() + 31536000000;
-    }
-    const q = query(
-      collectionRef,
-      and(
-        where("allot.expected_return_date", ">=", start),
-        where("allot.expected_return_date", "<=", end)
-      )
-    );
-    await getDocs(q).then((querySnapshot) => {
-      const newData = querySnapshot.docs.map((doc) => ({
-        ...doc.data(),
-        id: doc.id,
-      }));
-      let allot = [];
-      for (let x of newData) {
-        if ("allot" in x) {
-          let date1 = new Date(x["allot"]["borrowed_date"]);
-          x["allot"]["borrowed_date"] = date1.toLocaleDateString();
-          let date2 = new Date(x["allot"]["expected_return_date"]);
-          x["allot"]["expected_return_date"] = date2.toLocaleDateString();
-          let obj = x["allot"];
-          obj["id"] = x.id;
-          allot.push(obj);
-        }
-      }
-      setHistory(allot);
-      if (queryDate) {
-        setOpenFilter(false);
-      }
-    });
-  };
+  
+  
   const allotBook = async (e) => {
     await getDocs(collection(db, "student_list")).then((querySnapshot) => {
       const newData = querySnapshot.docs.map((doc) => ({
@@ -569,60 +317,394 @@ function App() {
     });
   };
 
+  // adding a student 
+
+  const handleStudentSubmit = async (e) => {
+    e.preventDefault();
+
+    if (
+        studentDetails.student_id !== "" &&
+        studentDetails.student_name !== "" &&
+        studentDetails.student_phone !== "" &&
+        studentDetails.student_batch !== ""
+    ) {
+        if (!studentDetails.student_phone.match(/^(\+\d{1,2}\s)?[6-9]\d{9}$/)) {
+            mobileNumberInvalid = false;
+            alert("Enter a valid number");
+        } else {
+            try {
+                console.log("studentDetails before ---->", studentDetails);
+
+                // Make a POST request to your Express server
+                const response = await axios.post('http://localhost:5000/student/postStudent', {
+                    id: studentDetails.student_id,
+                    name: studentDetails.student_name,
+                    role: 'student',  // Assuming 'role' is a required field and set it to 'student'
+                    phone: studentDetails.student_phone,
+                    batch: studentDetails.student_batch,
+                });
+
+                console.log('MongoDB API Response:', response.data);
+
+                getStudents();
+                setTab("students");
+                setStudentDetails({
+                    student_id: "",
+                    student_name: "",
+                    student_phone: "",
+                    student_batch: "",
+                    student_id_db: "",
+                });
+            } catch (err) {
+                console.error('Error adding student:', err);
+                alert("Cannot add student");
+            }
+        }
+    } else {
+        alert("Please fill in all form values");
+    }
+};
+
+  // get student
+
+  const getStudents = async (page = 1) => {
+    try {
+      const response = await axios.get(`http://localhost:5000/student/getStudent`);
+      const students = response.data;
+      console.log(students);
+  
+      setStudents(students);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      // Handle error appropriately, e.g., show a message to the user
+    }
+  };
+
+  // delete student  
+
+  const handleDeleteStudent = async (studentId) => {
+    try {
+      console.log("Deleting student with ID:", studentId);
+      if (studentId) {
+        // Make an Axios DELETE request to your server endpoint
+        const response = await axios.delete(`http://localhost:5000/student/deleteStudent/${studentId}`);
+        console.log("Delete response:", response.data);
+      }
+    } catch (error) {
+      console.error('Error deleting student:', error);
+    }
+  
+    // After deletion, refresh the list of students
+    getStudents();
+    setTab("students");
+  };
+
+  const handleFieldChange = (fieldName, value) => {
+    setEditStudentDetails((prev) => ({
+      ...prev,
+      [fieldName]: value,
+    }));
+  };
+  
+  // student edit
+
+  const handleEditStudentSubmit = async (studentId) => {
+    console.log('handleEditStudentSubmit called');
+
+    try {
+        if (studentId) {
+            // Make an Axios PUT request to your server endpoint for updating a student
+            const response = await axios.put(`http://localhost:5000/student/updateStudent/${studentId}`, {
+                // Assuming editStudentDetails is an object with updated student details
+                name: editStudentDetails.student_name,
+                phone: editStudentDetails.student_phone,
+                batch: editStudentDetails.student_batch,
+            });
+
+            console.log('Update response:', response.data);
+            
+            // After updating, refresh the list of students
+            getStudents();
+            setTab("students");
+            setOpenStudent(false);
+        }
+    } catch (error) {
+        console.error('Error updating student:', error);
+    }
+};
+
+  // student onchange
+
+  const handleEditStudent = async (studentId) => {
+    try {
+      // Make a request to fetch the student details by their ID
+      const response = await fetch(`http://localhost:5000/student/getId/${studentId}`);
+      const studentData = await response.json();
+      
+      if (response.ok) {
+        // Check if the student data is not empty
+        if (studentData) {
+          // Open the edit dialog and set the editStudentDetails
+          setOpenStudent(true);
+          setEditStudentDetails({
+            student_id: studentData.id,
+            student_name: studentData.name,
+            student_phone: studentData.phone,
+            student_batch: studentData.batch,
+            // Add other fields as needed
+          });
+        } else {
+          console.error('Student not found with ID:', studentId);
+        }
+      } else {
+        // Handle error if the request was not successful
+        console.error('Failed to fetch student details:', studentData);
+      }
+    } catch (error) {
+      console.error('Error fetching student details:', error);
+    }
+  };
+  
+  // student column
+  
   
 
   const studentColumns = useMemo(
     () => [
       {
-        accessorKey: "student_id", //simple recommended way to define a column
+        accessorKey: 'actions',
+        header: 'Actions',
+        Cell: ({ row }) => (
+          <div>
+            <button onClick={() => handleEditStudent(row.original.id)}>
+              Edit
+            </button>
+            <br />
+            <button onClick={() => handleDeleteStudent(row.original.id)}>
+              Delete
+            </button>
+          </div>
+        ),
+      },
+      {
+        accessorKey: "id", //simple recommended way to define a column
         header: "Student ID",
         muiTableHeadCellProps: { sx: { color: "green" } }, //optional custom props
         Cell: ({ cell }) => <span>{cell.getValue()}</span>, //optional custom cell render
       },
       {
-        accessorKey: "student_name", //simple recommended way to define a column
+        accessorKey: "name", //simple recommended way to define a column
         header: "Name",
         muiTableHeadCellProps: { sx: { color: "green" } }, //optional custom props
         Cell: ({ cell }) => <span>{cell.getValue()}</span>, //optional custom cell render
       },
       {
-        accessorKey: "student_phone", //simple recommended way to define a column
+        accessorKey: "phone", //simple recommended way to define a column
         header: "Phone",
         muiTableHeadCellProps: { sx: { color: "green" } }, //optional custom props
         Cell: ({ cell }) => <span>{cell.getValue()}</span>, //optional custom cell render
       },
       {
-        accessorKey: "student_batch", //simple recommended way to define a column
+        accessorKey: "batch", //simple recommended way to define a column
         header: "Batch",
         muiTableHeadCellProps: { sx: { color: "green" } }, //optional custom props
         Cell: ({ cell }) => <span>{cell.getValue()}</span>, //optional custom cell render
-      },
+      }
     ],
     []
   );
+  
+  // get books
+
+  const getBooks = async () => {
+    try {
+      const response = await axios.get(`http://localhost:5000/book/getBook`);
+      const books = response.data;
+      console.log(books);
+  
+      setBooks(books);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      // Handle error appropriately, e.g., show a message to the user
+    }
+  };
+
+  // add books
+
+  const handleBookSubmit = async (e) => {
+    e.preventDefault();
+
+    if (
+        bookDetails.name !== "" &&
+        bookDetails.reg_no !== "" &&
+        bookDetails.price !== "" &&
+        bookDetails.quantity !== ""
+    ) {
+        try {
+            console.log("bookDetails before ---->", bookDetails);
+
+            // Make a POST request to your Express server for adding a book
+            const response = await axios.post('http://localhost:5000/book/postBook', {
+                name: bookDetails.book_name,
+                reg_no: bookDetails.book_reg,
+                price: bookDetails.book_price,
+                quantity: bookDetails.book_quantity,
+            });
+
+            console.log('MongoDB API Response:', response.data);
+
+            getBooks(); // Assuming getBooks is a function to fetch and update the book list
+            setTab("books");
+            setBookDetails({
+                book_name: "",
+                book_reg: "",
+                book_price: "",
+                book_quantity: "",
+            });
+        } catch (err) {
+            console.error('Error adding book:', err);
+            alert("Cannot add book");
+        }
+    } else {
+        alert("Please fill in all form values");
+    }
+};
+
+// delete a book
+
+const deleteBook = async (reg_no) => {
+  try {
+
+    // Make an Axios DELETE request to your server endpoint for deleting a book
+    const response = await axios.delete(`http://localhost:5000/book/deleteBook/${reg_no}`);
+
+    console.log('Delete Book response:', response.data);
+
+    // After deleting, refresh the list of books or perform any other necessary actions
+    // (e.g., updating state, re-fetching data)
+    getBooks();
+    setTab("books");
+  } catch (error) {
+    console.error('Error deleting book:', error);
+  }
+};
+
+
+// onchange for book
+
+const handleEditBookChange = (e) => {
+  const { name, value } = e.target;
+  setEditBookDetails((prevDetails) => ({
+    ...prevDetails,
+    [name]: value,
+  }));
+};
+
+// edit submission
+
+const handleEditBookSubmit = async (reg_no) => {
+  console.log('handleBookSubmit called');
+
+  try {
+    if (reg_no) {
+      // Make an Axios PUT request to your server endpoint for updating a book
+      const response = await axios.put(`http://localhost:5000/book/updateBook/${reg_no}`, {
+        // Assuming editBookDetails is an object with updated book details
+        name: editBookDetails.book_name,
+        price: editBookDetails.book_price,
+        quantity: editBookDetails.book_quantity,
+      });
+
+      console.log('Update response:', response.data);
+
+      getBooks();
+      setTab("books");
+      setOpen(false);
+
+      // After updating, refresh the list of books or perform any other necessary actions
+      // For example, you might call a function like getBooks() to update the book list.
+    }
+  } catch (error) {
+    console.error('Error updating book:', error);
+  }
+};
+
+
+// diaglog box getting for edit
+
+
+const handleEditBook = async (reg_no) => {
+  try {
+    // Make a request to fetch the book details by registration number
+    const response = await fetch(`http://localhost:5000/book/getBook/${reg_no}`);
+    const bookData = await response.json();
+
+    if (response.ok) {
+      // Check if the book data is not empty
+      if (bookData) {
+        // Open the edit dialog and set the editBookDetails
+        setOpen(true);
+        setEditBookDetails({
+          book_reg: bookData.reg_no,
+          book_name: bookData.name,
+          book_price: bookData.price,
+          book_quantity: bookData.quantity,
+          // Add other fields as needed
+        });
+      } else {
+        console.error('Book not found with registration number:', reg_no);
+      }
+    } else {
+      // Handle error if the request was not successful
+      console.error('Failed to fetch book details:', bookData);
+    }
+  } catch (error) {
+    console.error('Error fetching book details:', error);
+  }
+};
+
+
+
+// Book columns
 
   const bookColumns = useMemo(
     () => [
       {
-        accessorKey: 'book_reg', //simple recommended way to define a column
+        accessorKey: 'actions',
+        header: 'Actions',
+        Cell: ({ row }) => (
+          <div>
+            <button onClick={() => deleteBook(row.original.reg_no)}>
+              Delete
+            </button>
+            <br />
+            <button  onClick={() =>handleEditBook(row.original.reg_no)}>
+              Edit
+            </button>
+          </div>
+        ),
+      },
+      
+      {
+        accessorKey: 'reg_no', //simple recommended way to define a column
         header: 'Reg No',
         muiTableHeadCellProps: { sx: { color: 'green' } }, //optional custom props
         Cell: ({ cell }) => <span>{cell.getValue()}</span>, //optional custom cell render
       },
       {
-        accessorKey: "book_name", //simple recommended way to define a column
+        accessorKey: "name", //simple recommended way to define a column
         header: "Name",
         muiTableHeadCellProps: { sx: { color: "green" } }, //optional custom props
         Cell: ({ cell }) => <span>{cell.getValue()}</span>, //optional custom cell render
       },
       {
-        accessorKey: "book_price", //simple recommended way to define a column
+        accessorKey: "price", //simple recommended way to define a column
         header: "Price",
         muiTableHeadCellProps: { sx: { color: "green" } }, //optional custom props
         Cell: ({ cell }) => <span>{cell.getValue()}</span>, //optional custom cell render
       },
       {
-        accessorKey: "book_quantity", //simple recommended way to define a column
+        accessorKey: "quantity", //simple recommended way to define a column
         header: "Quantity",
         muiTableHeadCellProps: { sx: { color: "green" } }, //optional custom props
         Cell: ({ cell }) => <span>{cell.getValue()}</span>, //optional custom cell render
@@ -637,40 +719,119 @@ function App() {
     []
   );
 
-  const historyColumns = useMemo(
+
+ 
+  // get allot history
+
+
+  const getHistory = async () => {
+    try {
+      const response = await axios.get(`http://localhost:5000/allot/getAllot`);
+      const allots = response.data;
+
+      setHistory(allots);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      // Handle error appropriately, e.g., show a message to the user
+    }
+  };
+  
+  
+  // change the return status
+
+
+
+  const handleChangeReturnStatus = async (studentId) => {
+    try {
+      await axios.put(`http://localhost:5000/allot/updateAllotByBookId/${studentId}`, {
+        return_status: allotDetails.return_status,
+      });
+  
+      getHistory();
+      setTab("history");
+    } catch (error) {
+      console.error('Error updating return status:', error);
+    }
+  };
+  
+  const handleAllotSubmit = async (e) => {
+    e.preventDefault();
+  
+    // Assuming you have a similar state for allotment details
+    if (
+      allotDetails.studentId !== "" &&
+      allotDetails.studentName !== "" &&
+      allotDetails.bookName !== "" &&
+      allotDetails.bookId !== "" &&
+      allotDetails.borrowedDate !== "" &&
+      allotDetails.expectedReturnDate !== ""
+    ) {
+      try {
+        // Make a POST request to your Express server
+        const response = await axios.post('http://localhost:5000/allot/postAllotBook', {
+          studentId: allotDetails.studentId,
+          studentName: allotDetails.studentName,
+          bookName: allotDetails.bookName,
+          bookId: allotDetails.bookId,
+          borrowedDate: allotDetails.borrowedDate,
+          expectedReturnDate: allotDetails.expectedReturnDate,
+        });
+  
+        console.log('MongoDB API Response:', response.data);
+  
+        getHistory(); // Assuming this function fetches the latest allotment history
+        setTab("history");
+        setAllotDetails({
+          studentId: "",
+          studentName: "",
+          bookName: "",
+          bookId: "",
+          borrowedDate: "",
+          expectedReturnDate: "",
+        });
+      } catch (err) {
+        console.error('Error adding allotment:', err);
+        alert("Cannot add allotment");
+      }
+    } else {
+      alert("Please fill in all form values");
+    }
+  };
+  
+
+  
+
+
+
+
+const historyColumns = useMemo(
     () => [
       {
-        accessorKey: "student_id", //simple recommended way to define a column
+        accessorKey: "studentId", //simple recommended way to define a column
         header: "ID",
         muiTableHeadCellProps: { sx: { color: "green" } }, //optional custom props
         Cell: ({ cell }) => <span>{cell.getValue()}</span>, //optional custom cell render
       },
       {
-        accessorKey: "book_reg", //simple recommended way to define a column
-        header: "Reg No",
-        muiTableHeadCellProps: { sx: { color: "green" } }, //optional custom props
-        Cell: ({ cell }) => <span>{cell.getValue()}</span>, //optional custom cell render
-      },
-      {
-        accessorKey: "student_name", //simple recommended way to define a column
+        accessorKey: "studentName", //simple recommended way to define a column
         header: "Student Name",
         muiTableHeadCellProps: { sx: { color: "green" } }, //optional custom props
         Cell: ({ cell }) => <span>{cell.getValue()}</span>, //optional custom cell render
       },
       {
-        accessorKey: "book_name", //simple recommended way to define a column
+        accessorKey: "bookName", //simple recommended way to define a column
         header: "Book Name",
         muiTableHeadCellProps: { sx: { color: "green" } }, //optional custom props
         Cell: ({ cell }) => <span>{cell.getValue()}</span>, //optional custom cell render
       },
       {
-        accessorKey: "borrowed_date", //simple recommended way to define a column
+        accessorKey: "borrowedDate", //simple recommended way to define a column
         header: "Borrowed Date",
         muiTableHeadCellProps: { sx: { color: "green" } }, //optional custom props
         Cell: ({ cell }) => <span>{cell.getValue()}</span>, //optional custom cell render
       },
       {
-        accessorKey: "expected_return_date", //simple recommended way to define a column
+        accessorKey: "expectedReturnDate", //simple recommended way to define a column
         header: "Expected Return Date",
         muiTableHeadCellProps: { sx: { color: "green" } }, //optional custom props
         Cell: ({ cell }) => <span>{cell.getValue()}</span>, //optional custom cell render
@@ -686,8 +847,9 @@ function App() {
               name={cell.row.original.id}
               value={cell.getValue()}
               
-              onChange={(e)=> {log(e)  }}
+              onChange={(e) => handleChangeReturnStatus(cell.row.original.studentId)}
             >
+
               <option value="true">Returned</option>
               <option value="false">Pending</option>
             </select>
@@ -704,87 +866,7 @@ function App() {
 
   const bookTableInstanceRef = useRef(null);
 
-  const handleEditBook = (e) => {
-    setEditBookDetails((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-  };
-
-  const handleEditStudent = (e) => {
-    const student = students.find(
-      (student) => student.student_id === e.target.value
-    );
-
-    if (!student) {
-      setEditStudentDetails((prev) => ({
-        ...prev,
-        [e.target.name]: e.target.value,
-      }));
-    }
-  };
-  const handleEditBookSubmit = async (e) => {
-    const docRef = doc(db, "book_list", editBookDetails.book_id);
-    const editDoc = await updateDoc(docRef, {
-      book: editBookDetails,
-    });
-    setOpen(false);
-  };
-  const handleDeleteBook = async (e) => {
-    await deleteDoc(doc(db, "book_list", editBookDetails.book_id));
-    getBooks();
-    setTab("books");
-  };
-
-  const handleEditStudentSubmit = async (e) => {
-    const docRef = doc(db, "student_list", editStudentDetails.student_id_db);
-    const editDoc = await updateDoc(docRef, {
-      student: editStudentDetails,
-    });
-    getStudents();
-    setTab("students");
-    setOpenStudent(false);
-  };
-
-  const handleDeleteStudent = async (e) => {
-    const studentId = editStudentDetails?.student_id_db;
-
-    try {
-      console.log("student id --->", studentId);
-      if (studentId !== "") {
-        const studentRef = await doc(db, "student_list", studentId);
-        console.log(studentId);
-        await deleteDoc(studentRef);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-
-    getStudents();
-    setTab("students");
-  };
-
-  function editBook(data, isDelete = false, isBook = false) {
-    if (isDelete) {
-      if (isBook) {
-        console.log(editBookDetails);
-        handleDeleteBook();
-      } else {
-        setEditStudentDetails(data.original);
-        handleDeleteStudent();
-      }
-    } else {
-      if (isBook) {
-        setEditBookDetails(data.original);
-        setOpen(true);
-      } else {
-        console.log(data.original);
-        setEditStudentDetails(data.original);
-        console.log(editStudentDetails);
-        setOpenStudent(true);
-      }
-    }
-  }
+ 
 
   function handleClose() {
     setOpen(false);
@@ -918,81 +1000,6 @@ function App() {
     a.click();
     document.body.removeChild(a);
     
-    // const collectionRef = collection(db, "allot_list");
-    // console.log("dataabase test");
-    // let start = null;
-    // let end = null;
-    // if (startDate || endDate) {
-    //   if (startDate) {
-    //     start = new Date(startDate).getTime();
-    //   } else {
-    //     start = new Date(0).getTime();
-    //   }
-    //   if (endDate) {
-    //     end = new Date(endDate).getTime();
-    //   } else {
-    //     end = new Date().getTime() + 31536000000;
-    //   }
-    // } else {
-    //   start = new Date().getTime();
-    //   end = new Date().getTime();
-    // }
-    // const q = query(
-    //   collectionRef,
-    //   and(
-    //     where("allot.expected_return_date", ">=", start),
-    //     where("allot.expected_return_date", "<=", end)
-    //   )
-    // );
-    // await getDocs(q).then((querySnapshot) => {
-
-    //   const newData = querySnapshot.docs.map((doc) => ({
-    //     ...doc.data(),
-    //     id: doc.id,
-    //   }));
-    //   console.log(newData,"hehehehehehe");
-    //   let student = [];
-    //   student.push([
-    //     "Student ID",
-    //     "Student Name",
-    //     "Book Name",
-    //     "Borrowed Date",
-    //     "Expected Return Date",
-    //     "Return Status",
-    //   ]);
-    //   console.log(student,"student dtaa");
-    //   let student_header = student[0].join(",");
-    //   let value_string = "";
-    //   for (let x of newData) {
-        
-    //     let date1 = new Date(x["allot"]["borrowed_date"]);
-    //     x["allot"]["borrowed_date"] = date1.toLocaleDateString();
-    //     let date2 = new Date(x["allot"]["expected_return_date"]);
-    //     x["allot"]["expected_return_date"] = date2.toLocaleDateString();
-    //     let obj = x["allot"];
-    //     let arry = [
-    //       obj.student_id,
-    //       obj.student_name,
-    //       obj.book_name,
-    //       obj.borrowed_date,
-    //       obj.expected_return_date,
-    //       obj.return_status,
-    //     ];
-    //     console.log(arry,"db array");
-    //     let string = arry.join(",");
-    //     value_string = value_string + string + "\n";
-    //   }
-    //   console.log(newData,"newdata");
-    //   let final_string = student_header + "\n" + value_string;
-    //   const blob = new Blob([final_string], { type: "text/csv" });
-    //   const url = window.URL.createObjectURL(blob);
-    //   const a = document.createElement("a");
-    //   a.href = url;
-    //   a.download = "data.csv";
-    //   document.body.appendChild(a);
-    //   a.click();
-    //   document.body.removeChild(a);
-    // });
   };
 
   const setSDate = (e) => {
@@ -1044,52 +1051,7 @@ function App() {
     
 
     return (
-    //   // <div className="flex justify-center items-center h-full ">
-    //   <div className="flex justify-center align-center items-center h-full">
-    //     <div className="flex flex-col items-center justify-between border shadow-2xl w-full max-w-md p-6 ">
-    //       <div className="flex flex-row items-center mb-4">
-    //         <img src={logo} className="p-2 h-16 sm:max-h-[300px]" alt="Logo 1" />
-        
-    //         <img src={logoLogin} className="p-2 h-14 max-h-[90px]" alt="Logo 2" />
-    //       </div>
-    //       <form onSubmit={login} className="login w-full ">
-    //         <div className="input-field mb-4">
-    //           <input
-    //             type="text"
-    //             name="username"
-    //             id="username"
-    //             placeholder="Enter your user name"
-    //             className="w-full px-4 py-2 border rounded-md"
-    //           />
-    //         </div>
-    //         <div className="input-field mb-4">
-    //           <input
-    //             type="password"
-    //             name="password"
-    //             id="password"
-    //             placeholder="Enter your password"
-    //             className="w-full px-4 py-2 border rounded-md"
-    //           />
-    //         </div>
-    //         <div className="input-field">
-    //           <button type="submit" className="w-full bg-blue-900 text-white px-4 py-2 rounded-md">
-    //          <h1>Log in</h1>
-    //           </button>
-    //         </div>
-    //         <p class="text-center text-base px-4 py-2">or</p>
 
-    //         <div className="input-field mb-4">
-    //           <button type="button" className="w-full bg-blue-900 text-white px-4 py-2 rounded-md">
-    //             Enter to E-Library
-    //           </button>
-    //         </div>
-    //       </form>
-    //     </div>
-    //   </div>
-    // // </div>
-
-   
-    // <div className="flex justify-center items-center h-full">
     <div className="flex justify-center items-center h-full ">
     <div className="flex flex-col items-center justify-between border shadow-2xl w-full max-w-md p-6 md:w-96 bg-white rounded-lg">
       <div className="flex flex-row items-center mb-4">
@@ -1141,46 +1103,6 @@ function App() {
   </div>
   
 
-//   <div className="flex justify-center items-center h-full">
-//     <div className="flex flex-col items-center justify-between border shadow-2xl w-full max-w-md p-6 md:w-96">
-//       <div className="flex flex-row items-center mb-4">
-//         <img src={logo} className="p-2 h-12 sm:h-16 md:h-20" alt="Logo 1" />
-//         <img src={logoLogin} className="p-2 h-10 sm:h-14 md:h-16" alt="Logo 2" />
-//       </div>
-//       <form onSubmit={login} className="login w-full">
-//         <div className="input-field mb-4">
-//           <input
-//             type="text"
-//             name="username"
-//             id="username"
-//             placeholder="Enter your user name"
-//             className="w-full px-4 py-2 border rounded-md"
-//           />
-//         </div>
-//         <div className="input-field mb-4">
-//           <input
-//             type="password"
-//             name="password"
-//             id="password"
-//             placeholder="Enter your password"
-//             className="w-full px-4 py-2 border rounded-md"
-//           />
-//         </div>
-//         <div className="input-field">
-//           <button type="submit" className="w-full bg-blue-900 text-white px-4 py-2 rounded-md">
-//             <h1>Log in</h1>
-//           </button>
-//         </div>
-//         <p className="text-center text-base px-4 py-2">or</p>
-//         <div className="input-field mb-4">
-//           <button type="button" className="w-full bg-blue-900 text-white px-4 py-2 rounded-md">
-//             Enter to E-Library
-//           </button>
-//         </div>
-//       </form>
-//     </div>
-//   </div>
-// </div>
 
 
     );
@@ -1247,7 +1169,7 @@ function App() {
             </div>
             <div
               id={tab === "login" ? "no_display" : "sidebar_option"}
-              onClick={() => [setTab("book_add_type"), addBook()]}
+              onClick={() => [setTab("book_add_type"), getBooks()]}
               className={` ${tab === "book_add_type" ? "bg-white !text-black" : "" }`}
             >
               Add a Book
@@ -1295,21 +1217,6 @@ function App() {
                 data={studentObjects}
                 enableColumnOrdering //enable some features
                 enablePagination={true} //disable a default feature //get a reference to the underlying table instance (optional)
-                enableRowActions
-                renderRowActionMenuItems={({ row }) => [
-                  <MenuItem
-                    key="edit"
-                    onClick={() => editBook(row, false, false)}
-                  >
-                    Edit
-                  </MenuItem>,
-                  <MenuItem
-                    key="delete"
-                    onClick={() => editBook(row, true, false)}
-                  >
-                    Delete
-                  </MenuItem>,
-                ]}
               />
             </div>
           </div>
@@ -1318,29 +1225,8 @@ function App() {
               <MaterialReactTable
                 columns={bookColumns}
                 data={bookObjects}
-                enableColumnOrdering={true}
-                enableRowSelection={true}
-                enableSelectAll={true}
-                enableMultiRowSelection={true}
+                enableColumnOrdering //enable some features
                 enablePagination={true}
-                onRowSelectionChange={setRowSelection}
-                state={{ rowSelection }}
-                tableInstanceRef={bookTableInstanceRef}
-                enableRowActions
-                renderRowActionMenuItems={({ row }) => [
-                  <MenuItem
-                    key="edit"
-                    onClick={() => editBook(row, false, true)}
-                  >
-                    Edit
-                  </MenuItem>,
-                  <MenuItem
-                    key="delete"
-                    onClick={() => editBook(row, true, true)}
-                  >
-                    Delete
-                  </MenuItem>,
-                ]}
               />
             </div>
           </div>
@@ -1357,7 +1243,7 @@ function App() {
                   label="Book Name"
                   name="book_name"
                   value={editBookDetails.book_name}
-                  onChange={handleEditBook}
+                  onChange={handleEditBookChange}
                 ></TextField>
               </div>
               <br></br>
@@ -1369,7 +1255,7 @@ function App() {
                   type="number"
                   name="book_price"
                   value={editBookDetails.book_price}
-                  onChange={handleEditBook}
+                  onChange={handleEditBookChange}
                 ></TextField>
               </div>
               <br></br>
@@ -1381,13 +1267,13 @@ function App() {
                   id="outlined_basic"
                   label="Book Quantity"
                   value={editBookDetails.book_quantity}
-                  onChange={handleEditBook}
+                  onChange={handleEditBookChange}
                 ></TextField>
               </div>
               <br></br>
               <DialogActions>
                 <Button onClick={handleClose}>Cancel</Button>
-                <Button onClick={handleEditBookSubmit}>Edit</Button>
+                <Button onClick={() => handleEditBookSubmit(editBookDetails.book_reg)}>Edit</Button>
               </DialogActions>
             </DialogContent>
           </Dialog>
@@ -1399,13 +1285,13 @@ function App() {
               <div>
                 <TextField
                   fullWidth
-                  type="text"
+                  type="number"
                   id="outlined_basic"
                   label="Student ID"
                   name="student_id"
                   value={editStudentDetails.student_id}
-                  onChange={handleEditStudent}
-                  readOnly
+                  onChange={(e) => handleFieldChange(e.target.name, e.target.value)}
+                  inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
                 >
                   Student ID
                 </TextField>
@@ -1419,37 +1305,37 @@ function App() {
                   id="outlined_basic"
                   label="Student Name"
                   value={editStudentDetails.student_name}
-                  onChange={handleEditStudent}
+                  onChange={(e) => handleFieldChange(e.target.name, e.target.value)}
                 ></TextField>
               </div>
               <br></br>
               <div>
                 <TextField
                   fullWidth
-                  type="number"
+                  type="text"
                   name="student_phone"
                   id="outlined_basic"
                   label="Student Phone"
                   value={editStudentDetails.student_phone}
-                  onChange={handleEditStudent}
+                  onChange={(e) => handleFieldChange(e.target.name, e.target.value)}
                 ></TextField>
               </div>
               <br></br>
               <div>
                 <TextField
                   fullWidth
-                  type="number"
+                  type="text"
                   name="student_batch"
                   id="outlined_basic"
                   label="Student Batch"
                   value={editStudentDetails.student_batch}
-                  onChange={handleEditStudent}
+                  onChange={(e) => handleFieldChange(e.target.name, e.target.value)}
                 ></TextField>
               </div>
               <br></br>
               <DialogActions>
                 <Button onClick={handleCloseStudent}>Cancel</Button>
-                <Button onClick={handleEditStudentSubmit}>Edit</Button>
+                <Button onClick={() => handleEditStudentSubmit(editStudentDetails.student_id)}>Edit</Button>
               </DialogActions>
             </DialogContent>
           </Dialog>
@@ -1533,7 +1419,7 @@ function App() {
                 <label for="name">Student ID</label>
                 <input
                   required
-                  type="text"
+                  type="number"
                   name="student_id"
                   placeholder="Student ID"
                   value={studentDetails.student_id}
@@ -1669,7 +1555,7 @@ function App() {
                   type="text"
                   name="student_id"
                   placeholder="Student ID"
-                  value={allotDetails.student_id}
+                  value={allotDetails.studentId}
                   onChange={handleAllotChange}
                 />
               </div>
@@ -1679,7 +1565,7 @@ function App() {
                   type="text"
                   name="student_name"
                   placeholder="Student Name"
-                  value={allotStudentName}
+                  value={allotDetails.studentName}
                   onChange={handleAllotChange}
                   readOnly
                 />
@@ -1688,21 +1574,6 @@ function App() {
                 <label for="name">Book Name</label>
                 <CategorySearch allotBooksList={allotBooksList} handleAllotChange={handleAllotChange}  />
 
-                {/* <select
-                  required
-                  name="book_id"
-                  value={allotDetails.book_id}
-                  onChange={handleAllotChange}
-                >
-                  <option value="" disabled selected>
-                    Select a book
-                  </option>
-                  {allotBooksList.map((book) => {
-                    return (
-                      <option value={book.book_id}>{book.book_name}</option>
-                    );
-                  })}
-                </select> */}
               </div>
 
               <div style={{ marginTop: "5%" }}>
@@ -1711,7 +1582,7 @@ function App() {
                   type="text"
                   name="student_name"
                   placeholder="Book register id"
-                  value={allotDetails?.book_reg}
+                  value={allotDetails.bookId}
                   onChange={handleAllotChange}
                   readOnly
                 />
@@ -1722,7 +1593,7 @@ function App() {
                   type="date"
                   name="borrowed_date"
                   placeholder="Borrowed Date"
-                  value={allotDetails.borrowed_date}
+                  value={allotDetails.borrowedDate}
                   onChange={handleAllotChange}
                 />
               </div>
@@ -1732,7 +1603,7 @@ function App() {
                   type="date"
                   name="expected_return_date"
                   placeholder="Return Date"
-                  value={allotDetails.expected_return_date}
+                  value={allotDetails.expectedReturnDate}
                   onChange={handleAllotChange}
                 />
               </div>

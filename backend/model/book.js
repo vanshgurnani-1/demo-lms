@@ -3,22 +3,14 @@ const Schema = mongoose.Schema;
 
 const bookSchema = new Schema({
   name: {
-    type: String,
-    required: true,
-    unique: true,
+    type: String
   },
-  reg_no: {
-    type: String,
-    required: true,
-    unique: true,
-  },
+  reg_no: { type: Number, required: true, unique: true },
   price: {
-    type: String,
-    required: true,
+    type: String
   },
   quantity: {
-    type: String,
-    required: true,
+    type: String
   }
 });
 
