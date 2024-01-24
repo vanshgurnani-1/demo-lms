@@ -33,6 +33,35 @@ router.get('/getAllot/:studentId', async (req,res)=>{
   }
 })
 
+router.get('/getAllotByStudentId/:studentId', async (req, res) => {
+  try {
+    const studentId = req.params.studentId;
+    const allotments = await Allot.find({ studentId });
+
+    res.json(allotments);
+  } catch (error) {
+    console.error('Error fetching:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.get('/getFilteredAllot', async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+
+    // Use MongoDB query to filter allotments based on date range
+    const allotments = await Allot.find({
+      borrowedDate: { $gte: startDate },
+      expectedReturnDate: { $lte: endDate },
+    });
+
+    res.json(allotments);
+  } catch (error) {
+    console.error('Error fetching filtered allotments:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 router.post('/postAllotBook', async (req, res) => {
   try {
     const { studentId, studentName, bookName, bookId, borrowedDate, expectedReturnDate, return_status } = req.body;

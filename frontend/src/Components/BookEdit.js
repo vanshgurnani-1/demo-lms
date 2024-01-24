@@ -2,8 +2,6 @@ import React, { useEffect, useState } from "react";
 import CountUp from "react-countup";
 import "./BookEdit.css";
 import axios from "axios";
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "../firebase";
 import { PieChart } from "@mui/x-charts/PieChart";
 
 export default function Dashboard() {
@@ -11,7 +9,6 @@ export default function Dashboard() {
   const [books, setBooks] = useState(0);
   const [lending, setLending] = useState(0);
   const [remaining, setRemaining] = useState(0);
-  const [graph, setGraph] = useState([]);
 
   useEffect(() => {
     getStudents();

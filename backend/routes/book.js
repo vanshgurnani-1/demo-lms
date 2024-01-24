@@ -2,14 +2,14 @@ const express = require('express');
 const router = express.Router();
 const Book = require('../model/book');
 
-const cors = require('cors');
+// const cors = require('cors');
 
 
-router.use(cors({
-  origin: 'http://localhost:3000', // Specify the allowed origin
-  methods: ['GET', 'DELETE','PUT']
-  // You can include other options as needed
-}));
+// router.use(cors({
+//   origin: 'http://localhost:3000', // Specify the allowed origin
+//   methods: ['GET', 'DELETE','PUT']
+//   // You can include other options as needed
+// }));
 
 
 router.get('/',async (req,res)=>{

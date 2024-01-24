@@ -8,37 +8,16 @@ import React, { useMemo, useRef } from "react";
 import { MaterialReactTable } from "material-react-table";
 import satyamev from "./satyamev.png"
 import {
-  collection,
-  addDoc,
-  getDocs,
-  deleteDoc,
-  updateDoc,
-  doc,
-  query,
-  where,
-  Timestamp,
-  and,
-} from "firebase/firestore";
-import { db } from "./firebase";
-import {
   Button,
   DialogActions,
   DialogContent,
   DialogContentText,
-  MenuItem,
-  Select,
   TextField,
 } from "@mui/material";
 import { Dialog } from "@mui/material";
-import Papa from "papaparse";
 import logoLogin from "./login_logo1.png";
-
-import browserLang from "browser-lang";
 import logo from "./Police_logo.png";
 import CategorySearch from "./Components/CategorySearch";
-
-
-const supportedLanguages = ["en", "mr"];
 
 function App() {
 
@@ -116,6 +95,9 @@ function App() {
     return_status: false,
 });
 
+  const handleCloseFilter = () => {
+    setOpenFilter(false);
+  };
 
   
 
@@ -239,56 +221,31 @@ function App() {
   var historyObjects = lendingHistory();
 
 
-  const filterSearchId = (e) => {
+  const filterSearchId = async (e) => {
     setSearchAllotId(e.target.value);
     let historyArr = [];
-    if (e.target.value == "") {
-      historyObjects = history;
-    } else {
-      for (let x of history) {
-        if (x.student_id.includes(String(e.target.value))) {
-          historyArr.push(x);
-        }
+  
+    try {
+      if (e.target.value === "") {
+        // If the search value is empty, fetch all allotments
+        const response = await axios.get('http://localhost:5000/allot/getAllot');
+        historyArr = response.data;
+      } else {
+        // If there is a search value, fetch allotments for the specific student ID
+        const response = await axios.get(`http://localhost:5000/allot/getAllotByStudentId/${e.target.value}`);
+        historyArr = response.data;
       }
-      historyObjects = historyArr;
+  
+      // Update state with the fetched data
+      setHistory(historyArr);
+    } catch (error) {
+      console.error('Error fetching allotments:', error);
     }
   };
-
   
 
   
-  
-  const allotBook = async (e) => {
-    await getDocs(collection(db, "student_list")).then((querySnapshot) => {
-      const newData = querySnapshot.docs.map((doc) => ({
-        ...doc.data(),
-        id: doc.id,
-      }));
-      let student = [];
-      for (let x of newData) {
-        if ("student" in x) {
-          student.push(x["student"]);
-        } else {
-          student.push(x);
-        }
-      }
-      setAllotList(student);
-    });
-    await getDocs(collection(db, "book_list")).then((querySnapshot) => {
-      const newData = querySnapshot.docs.map((doc) => ({
-        ...doc.data(),
-        id: doc.id,
-      }));
-      let books = [];
-      for (let x of newData) {
-        let obj = x["book"];
-        obj["book_id"] = x.id;
-        books.push(obj);
-      }
-      
-      setAllotBooksList(books);
-    });
-  };
+
 
   // adding a student 
 
@@ -841,7 +798,23 @@ const handleEditBook = async (reg_no) => {
     };
     
     
-    
+    const handleApplyFilter = async () => {
+      try {
+        // Make an API call to get filtered allotments
+        const response = await axios.get(`http://localhost:5000/allot/getFilteredAllot?startDate=${startDate}&endDate=${endDate}`);
+        const filteredAllotments = response.data;
+  
+        // Process the filtered allotments as needed
+        console.log(filteredAllotments);
+  
+        // Close the filter dialog
+        setHistory(filteredAllotments);
+        setOpenFilter(false);
+        alert("Filtering Done Successfully");
+      } catch (error) {
+        console.error('Error applying filter:', error);
+      }
+    };    
 
 
 
@@ -919,161 +892,52 @@ const historyColumns = useMemo(
   }
 
   const handleCSVUpload = async (e) => {
-    const files = e.target.files;
-    let name = e.target.name;
-    console.log(name);
-    if (name == "student") {
-      if (files) {
-        Papa.parse(files[0], {
-          complete: async function (result) {
-            let count = 0;
-            for (let x of result.data) {
-              count = count + 1;
-              let obj = {};
-              if (count >= 1 && x.length >= 1) {
-                obj.student_id = x[0];
-                obj.student_name = x[1];
-                obj.student_phone = x[2];
-                obj.student_batch = x[3];
-                const studentSubmit = await addDoc(
-                  collection(db, "student_list"),
-                  {
-                    student: obj,
-                  }
-                );
-              }
-            }
-            e.target.value = null;
-            getStudents();
-            setTab("students");
-          },
-        });
-      }
-    }
-    if (name == "book") {
-      if (files) {
-        Papa.parse(files[0], {
-          complete: async function (result) {
-            let count = 0;
-
-            console.log("book list ", result.data);
-
-            if (
-              typeof result.data[0][0] !== "string" ||
-              typeof result.data[0][1] !== "string" ||
-              typeof result.data[0][2] !== "string" ||
-              typeof result.data[0][3] !== "string" 
-            ) {
-              console.log("invalid file");
-            } else {
-              for (let x of result.data) {
-                count = count + 1;
-                let obj = {};
-                if (count >= 1 && x.length >= 1) {
-                  obj.book_name = x[0];
-                  obj.book_reg = x[1];
-                  obj.book_price = x[2];
-                  obj.book_quantity = x[3];
-                  const studentSubmit = await addDoc(
-                    collection(db, "book_list"),
-                    {
-                      book: obj,
-                    }
-                  );
-                }
-              }
-
-              e.target.value = null;
-              getBooks();
-              setTab("books");
-            }
-          },
-        });
-      }
-    }
+    console.log("Csv Upload");
+    alert("Csv Upload");
   };
 
-  const getStudentsDownlaod = async (e) => {
-    
-    const collectionRef = collection(db, "allot_list");
+  const getStudentsDownlaod = async () => {
+    try {
+      // Assume you already have JSON data (replace this with your actual JSON data)
+      const response = await axios.get(
+        `http://localhost:5000/allot/getAllot`
+      );
 
-    let start = startDate ? new Date(startDate).getTime() : new Date(0).getTime();
-    let end = endDate ? new Date(endDate).getTime() : new Date().getTime() + 31536000000;
+      const jsonData =  response.data;
   
-    const q = query(
-      collectionRef,
-      where("allot.expected_return_date", ">=", start),
-      where("allot.expected_return_date", "<=", end)
-    );
-  
-    const querySnapshot = await getDocs(q);
-  
-    const newData = querySnapshot.docs.map((doc) => ({
-      ...doc.data(),
-      id: doc.id,
-    }));
-  
-    let csvContent = "Student ID,Student Name,Book Name,Borrowed Date,Expected Return Date,Return Status\n";
-  
-    newData.forEach((record) => {
-      let borrowedDate = new Date(record.allot.borrowed_date).toLocaleDateString();
-      let returnDate = new Date(record.allot.expected_return_date).toLocaleDateString();
-  
-      let csvRow = [
-        record.allot.student_id,
-        record.allot.student_name,
-        record.allot.book_name,
-        borrowedDate,
-        returnDate,
-        record.allot.return_status,
-      ].join(",");
-  
-      csvContent += csvRow + "\n";
-    });
-  
-    const blob = new Blob([csvContent], { type: "text/csv" });
-    const url = window.URL.createObjectURL(blob);
-  
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "data.csv";
-  
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    
-  };
-
-  const setSDate = (e) => {
-    setStartDate(e.target.value);
-  };
-
-  const setEDate = (e) => {
-    setEndDate(e.target.value);
-  };
-
-  const log = async (e) => {
-    console.log(history);
-    let obj = history.find((o) => o.id === e.target.name);
-    if (obj) {
-      obj.return_status = e.target.value === "true";
-      const docRef = doc(db, "allot_list", obj.id);
-      obj.borrowed_date = new Date(obj.borrowed_date).getTime();
-      obj.expected_return_date = new Date(obj.expected_return_date).getTime();
-      const editDoc = await updateDoc(docRef, {
-        allot: obj,
+      // Convert JSON data to CSV
+      let csvContent = "Student ID,Student Name,Book Name,Borrowed Date,Expected Return Date,Return Status\n";
+      jsonData.forEach((record) => {
+        let csvRow = [
+          record.studentId,
+          record.studentName,
+          record.bookName,
+          new Date(record.borrowedDate).toLocaleDateString(),
+          new Date(record.expectedReturnDate).toLocaleDateString(),
+          record.return_status,
+        ].join(",");
+        csvContent += csvRow + "\n";
       });
-      getHistory();
+  
+      // Create a Blob containing the CSV content
+      const blob = new Blob([csvContent], { type: "text/csv" });
+  
+      // Create a link to download the CSV file
+      const a = document.createElement("a");
+      a.href = window.URL.createObjectURL(blob);
+      a.download = "allot_data.csv";
+  
+      // Append the link to the document and trigger a click event
+      document.body.appendChild(a);
+      a.click();
+  
+      // Remove the link from the document
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error("Error downloading CSV:", error);
     }
   };
 
-  function openFilterDialog() {
-    setOpenFilter(true);
-  }
-
-  function closeFilter(apply = false) {
-    setOpenFilter(false);
-  }
   const LoginFun = () => {
     let username = "admin";
     let password = "admin@123";
@@ -1225,7 +1089,7 @@ const historyColumns = useMemo(
             </div>
             <div
               id={tab === "login" ? "no_display" : "sidebar_option"}
-              onClick={() => [allotBook(), setTab("allot_book")]}
+              onClick={() => [getHistory(), setTab("allot_book")]}
               className={` ${tab === "allot_book" ? "bg-white !text-black" : "" }`}
             >
               Allot a book   
@@ -1383,37 +1247,32 @@ const historyColumns = useMemo(
           </Dialog>
 
           <Dialog open={openFilter}>
-            <DialogContent>
-              <DialogContentText>Apply Filter</DialogContentText>
-              <br></br>
-              <div className="filter_input">
-                <p className="filter-para">Start Date:</p>
-                <TextField
-                  onChange={setSDate}
-                  type="date"
-                  placeholder="Start Date"
-                >
-                  Start Date
-                </TextField>
-              </div>
-              <br></br>
-              <div className="filter_input">
-                <p className="filter-para">End Date:</p>
-                <TextField
-                  onChange={setEDate}
-                  type="date"
-                  placeholder="Start Date"
-                >
-                  End Date
-                </TextField>
-              </div>
-              <br></br>
-              <DialogActions>
-                <Button onClick={() => closeFilter(false)}>Cancel</Button>
-                <Button onClick={() => getHistory(true)}>Apply</Button>
-              </DialogActions>
-            </DialogContent>
-          </Dialog>
+          <DialogContent>
+            <DialogContentText>Apply Filter</DialogContentText>
+            <br></br>
+            <div className="filter_input">
+              <TextField
+                onChange={(e) => setStartDate(e.target.value)}
+                type="date"
+                placeholder="Start Date"
+              />
+            </div>
+            <br></br>
+            <div className="filter_input">
+              <TextField
+                onChange={(e) => setEndDate(e.target.value)}
+                type="date"
+                placeholder="End Date"
+              />
+            </div>
+            <br></br>
+            <DialogActions>
+              <Button onClick={handleCloseFilter}>Cancel</Button>
+              <Button onClick={handleApplyFilter}>Apply</Button>
+            </DialogActions>
+          </DialogContent>
+        </Dialog>
+
 
           <div
             id={tab === "history" ? "display" : "no_display"}
@@ -1425,7 +1284,7 @@ const historyColumns = useMemo(
               </button>
               <button
                 className="filter_button"
-                onClick={() => openFilterDialog()}
+                onClick={() => setOpenFilter(true)}
               >
                 Apply Filter
               </button>
