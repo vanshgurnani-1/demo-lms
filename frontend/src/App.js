@@ -18,6 +18,7 @@ import { Dialog } from "@mui/material";
 import logoLogin from "./login_logo1.png";
 import logo from "./Police_logo.png";
 import CategorySearch from "./Components/CategorySearch";
+import Papa from 'papaparse';
 
 function App() {
 
@@ -891,10 +892,107 @@ const historyColumns = useMemo(
     setOpenStudent(false);
   }
 
-  const handleCSVUpload = async (e) => {
-    console.log("Csv Upload");
-    alert("Csv Upload");
+
+  // csv upload logic 
+
+
+  // const handleCSVUpload = async (e) => {
+  //   console.log("Csv Upload");
+  //   alert("Csv Upload");
+  // };
+
+  const handleStudentCSVUpload = async (result) => {
+    try {
+      for (let x of result.data) {
+        let obj = {};
+        if (x.length >= 5) {
+          obj.id = parseInt(x[0], 10);
+          obj.name = x[1];
+          obj.role = x[2];
+          obj.phone = x[3];
+          obj.batch = x[4];
+  
+          // Add more properties as needed for student
+  
+          // Make an API request to upload student data
+          const response = await axios.post("http://localhost:5000/student/postStudent", obj);
+          console.log(response.data); // Log the response from the server
+        } else {
+          console.error('Invalid data format in CSV row:', x);
+        }
+      }
+    } catch (error) {
+      console.error('Error uploading student data:', error);
+    }
   };
+
+  const handleBookCSVUpload = async (result) => {
+    try {
+      for (let i = 1; i < result.data.length; i++) {
+        let x = result.data[i];
+        let obj = {};
+        if (x.length >= 4) {
+          obj.name = x[0];
+          obj.reg_no = parseInt(x[1], 10);
+          obj.price = x[2];
+          obj.quantity = parseInt(x[3], 10);
+  
+          // Add more properties as needed for student
+  
+          // Make an API request to upload student data
+          const response = await axios.post("http://localhost:5000/book/postBook", obj);
+          console.log(response.data); // Log the response from the server
+        } else {
+          console.error('Invalid data format in CSV row:', x);
+        }
+      }
+    } catch (error) {
+      console.error('Error uploading book data:', error);
+    }
+  };
+  
+  
+  
+  const handleCSVUpload = async (e) => {
+    const files = e.target.files;
+    let name = e.target.name;
+    console.log(name);
+  
+    if (files) {
+      Papa.parse(files[0], {
+        complete: async function (result) {
+  
+          if (name === "student") {
+            handleStudentCSVUpload(result);
+          } 
+          else if (name === "book") {
+            handleBookCSVUpload(result);
+          } 
+          else {
+            console.log("Invalid file type");
+            return;
+          }
+  
+          e.target.value = null;
+          // Reload data from the server or update state as needed
+          if (name === "student") {
+            getStudents();
+            setTab("students");
+          } 
+          else if (name === "book") {
+            getBooks();
+            setTab("books");
+          }
+        },
+      });
+    }
+  
+    console.log("CSV Upload");
+    alert("CSV Upload");
+  };
+
+
+  // download data logic from allot list
 
   const getStudentsDownlaod = async () => {
     try {

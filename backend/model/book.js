@@ -5,7 +5,7 @@ const bookSchema = new Schema({
   name: {
     type: String
   },
-  reg_no: { type: Number, required: true, unique: true },
+  reg_no: { type: Number },
   price: {
     type: String
   },
